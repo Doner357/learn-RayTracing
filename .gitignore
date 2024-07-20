@@ -33,5 +33,5 @@
 
 # Directories
 .vscode/
-bin/
+objs/
 build/
