@@ -1,6 +1,75 @@
 #include <iostream>
+#include <string>
+#include <vector>
+#include <cstdint>
+#include <fstream>
 
-int main(void) {
-    std::cout << "Hello world!" << std::endl;
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
+
+int main() {
+
+    // -- Image --
+
+    // Store image color data
+    std::vector<uint8_t> image_data;
+    // .ppm file output stream
+    std::ofstream ppm_image;
+    ppm_image.open("ppm_image.ppm");
+
+    int image_width  = 256;
+    int image_height = 256;
+    int image_comp   = 3;    // R, G, B
+
+    // -- Render --
+
+    // For .ppm file
+    ppm_image << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+    for (int j = 0; j < image_height; j++) {
+        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+        for (int i = 0; i < image_width; i++) {
+            double r = static_cast<double>(i) / (image_width - 1);
+            double g = static_cast<double>(j) / (image_width - 1);
+            double b = 0.0;
+
+            int ir = static_cast<int>(255.999 * r);
+            int ig = static_cast<int>(255.999 * g);
+            int ib = static_cast<int>(255.999 * b);
+
+            ppm_image << ir << ' ' << ig << ' ' << ib << '\n';
+
+            image_data.push_back(ir);
+            image_data.push_back(ig);
+            image_data.push_back(ib);
+        }
+    }
+
+    std::clog << "\rDone.                       \n";
+
+    // End output .ppm file
+    ppm_image.close();
+
+    // Test stbi_image_write
+    stbi_write_png("png_image.png", image_width, image_height, image_comp, image_data.data(), image_width * image_comp);
+
+    // Test stbi_image
+    int load_image_width  = 0,
+        load_image_height = 0,
+        load_image_comp   = 0;
+
+    unsigned char* load_image_data = stbi_load("png_image.png", &load_image_width, &load_image_height, &load_image_comp, 0);
+    if (load_image_data) {
+        std::clog << "Load successfully!" << '\n' <<
+                     "width:     " << load_image_width  << '\n' <<
+                     "height:    " << load_image_height << '\n' <<
+                     "component: " << load_image_comp   << std::endl;
+    }
+    else {
+        std::clog << "Failed to load image!" << std::endl;
+    }
+
+    stbi_image_free(load_image_data);
+
     return 0;
 }
