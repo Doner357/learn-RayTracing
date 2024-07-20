@@ -45,7 +45,6 @@ int main() {
     // .ppm Header
     ppm_image << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     // .ppm color data
-    std::cout << image_data.size() / 3 << ' ' << image_width * image_height << std::endl;
     for (uint32_t i = 0; i < image_data.size(); i += 3) {
         ppm_image << static_cast<int32_t>(image_data[i])     << ' ' <<  // R
                      static_cast<int32_t>(image_data[i + 1]) << ' ' <<  // G
