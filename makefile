@@ -90,8 +90,9 @@ $(BUILD_DIR):
 RM_FILES := $(BUILDTARGET)       \
 			$(OBJS)              \
 			$(DEPS)              \
+			$(TARGET_DIR)/*.ppm  \
 			$(TARGET_DIR)/*.png  \
-			$(TARGET_DIR)/*.ppm
+			$(TARGET_DIR)/*.jpg
 
 # Clean up build directory
 clean:
