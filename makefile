@@ -110,14 +110,14 @@ $(MIRROR_DIR):
 # stucture which fit this makefile.
 ####################################################
 # Directories to be create
-MKDIRS := 	$(SRC_DIR)		\
-			$(INCLUDE_DIR)	\
-			$(LIB_DIR)
+MKDIRS := 	$(SRC_DIR)	\
+		$(INCLUDE_DIR)	\
+		$(LIB_DIR)
 
 # Run method
 init:
 	$(call MakeMsg, Starting to initialize workspace...)
-	$(call Mkdir, $(call FixPath, $(MKDIRS)))
+	@$(call Mkdir, $(call FixPath, $(MKDIRS)))
 	$(call MakeMsg, Initialization completed!)
 	@cd .
 
@@ -154,7 +154,7 @@ RM_TARGETS := 	$(BUILDTARGET)		\
 # Clean up build directory
 clean:
 	$(call MakeMsg, Starting to delete created files...)
-	$(call Remove, $(call FixPath, $(RM_TARGETS)))
+	@$(call Remove, $(call FixPath, $(RM_TARGETS)))
 	$(call MakeMsg, Done!)
 	@cd .
 
