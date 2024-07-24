@@ -23,12 +23,11 @@ class Canvas {
     public:
         Canvas(
             const uint32_t width,
-            const uint32_t height,
-            const uint32_t components = 3
+            const uint32_t height
         ) :
             width(width),
             height(height),
-            components(components),
+            components(3),
             index(0),
             colors(new color[width * height]) {}
 
@@ -128,37 +127,37 @@ class Canvas {
         }
 
 
-        public:
-            // Define bitwise operators for imgtp
-            friend img_type operator|(img_type lhs, img_type rhs) {
-                return static_cast<img_type>(
-                    static_cast<std::underlying_type_t<img_type>>(lhs) |
-                    static_cast<std::underlying_type_t<img_type>>(rhs)
-                );
-            }
+    public:
+        // Define bitwise operators for imgtp
+        friend img_type operator|(img_type lhs, img_type rhs) {
+            return static_cast<img_type>(
+                static_cast<std::underlying_type_t<img_type>>(lhs) |
+                static_cast<std::underlying_type_t<img_type>>(rhs)
+            );
+        }
 
-            friend img_type& operator|=(img_type& lhs, img_type rhs) {
-                lhs = lhs | rhs;
-                return lhs;
-            }
+        friend img_type& operator|=(img_type& lhs, img_type rhs) {
+            lhs = lhs | rhs;
+            return lhs;
+        }
 
-            friend img_type operator&(img_type lhs, img_type rhs) {
-                return static_cast<img_type>(
-                    static_cast<std::underlying_type_t<img_type>>(lhs) &
-                    static_cast<std::underlying_type_t<img_type>>(rhs)
-                );
-            }
+        friend img_type operator&(img_type lhs, img_type rhs) {
+            return static_cast<img_type>(
+                static_cast<std::underlying_type_t<img_type>>(lhs) &
+                static_cast<std::underlying_type_t<img_type>>(rhs)
+            );
+        }
 
-            friend img_type& operator&=(img_type& lhs, img_type rhs) {
-                lhs = lhs & rhs;
-                return lhs;
-            }
+        friend img_type& operator&=(img_type& lhs, img_type rhs) {
+            lhs = lhs & rhs;
+            return lhs;
+        }
 
-            friend img_type operator~(img_type lhs) {
-                return static_cast<img_type>(
-                    ~static_cast<std::underlying_type_t<img_type>>(lhs)
-                );
-            }
+        friend img_type operator~(img_type lhs) {
+            return static_cast<img_type>(
+                ~static_cast<std::underlying_type_t<img_type>>(lhs)
+            );
+        }
 };
 
 #endif // CANVAS_HPP
