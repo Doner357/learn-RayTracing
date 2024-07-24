@@ -227,4 +227,4 @@ clean-all:
 
 
 # Phony targets
-.PHONY: all init run clean
+.PHONY: all init run clean clean-all
