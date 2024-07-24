@@ -46,11 +46,7 @@ class vec3 {
         }
 
         vec3& operator/=(double t) {
-            e[0] /= t;
-            e[1] /= t;
-            e[2] /= t;
-            
-            return *this;
+            return *this *= 1/t;
         }
 
         double length() const {
