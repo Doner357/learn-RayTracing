@@ -1,32 +1,67 @@
 # Deal with the difference of the operating system
+# Usage: $(call function name,...)
+# -------------------------------------------------------------
+# fixpath       : Fix path with backslash
+# mkdir         : Fix make directory call
+# cp            : Fix copy file and directorie call
+# rm            : Fix the remove files and directories call
+# fixexecutable : Fix the different executable file suffix
 ifdef OS
-	FixExecutable = $1.exe
-	Remove        = $(shell for %%f in ($1) do if exist %%f del /q %%f)
-	FixPath       = $(subst /,\, $1)
-	Mkdir         = $(shell for %%f in ($1) do if not exist %%f mkdir %%f)
+	fixexecutable = $1.exe
+	rm            = for %%f in ($1) do if exist %%f\* (rmdir /s /q %%f) else if exist %%f (del /q %%f)
+	fixpath       = $(subst /,\,$1)
+	mkdir         = for %%f in ($1) do if not exist %%f mkdir %%f
+	cp            = copy /y $1 $2
 else
 	ifeq ($(shell uname), Linux)
-		FixExecutable = $1
-		Remove        = rm -f $1
-		FixPath       = $1
-		Mkdir         = mkdir -p $1
+		fixexecutable = $1
+		rm            = rm -f -r $1
+		fixpath       = $1
+		mkdir         = mkdir -p $1
+		cp            = cp -f -r $1 $2
 	endif
 endif
-# Message function
-MakeMsg = $(info Make Message:$1)
+
+# Utility functions
+# -------------------------------------------------------------
+# Find all targets in the directory with the specified pattern. Specify the pattern with * to get all contents.
+# Usage: $(call rwildcard,directory,pattern)
+rwildcard = $(wildcard $1/$2) $(foreach d,$(wildcard $1/*),$(call rwildcard,$d,$2))
+# Extract all directories in variable with no "/" suffix, and remove all duplicated directory
+# Usage: $(call extrdir,$(var))
+extrdir = $(sort $(patsubst %/,%,$(dir $1)))
+# Extract all files with its path in a variable. Note that this can't really recognize if a target is 
+# a file or directory. This is just a literal function, if two or more have the same prefix, the longest literal is taken.
+# Usage: $(call extrfile,$(var))
+extrfile = $(filter-out $(patsubst %/,%,$(dir $1)),$1)
+# Extract all directories in specified directory with no "/" suffix, and remove all duplicated directory
+# Usage: $(call dirwildcard,directory name)
+dirwildcard = $(call extrdir,$(call rwildcard,$1,*))
+# Extract all files in specified directory. Note that this can't really recognize if a target is 
+# a file or directory. This is just a literal function, if two or more have the same prefix, the longest literal is taken.
+# So this function can also be used to find deepest level target in each folder in a directory.
+# Usage: $(call filewildcard,directory name)
+filewildcard = $(call extrfile,$(call rwildcard,$1,*))
+# Automatically scans libraries in specified directory and generates link directory flags.
+# Usage: $(call libdirflags,libraries directory name)
+libdirflags = $(addprefix -L,$(call dirwildcard,$1))
+# Automatically scans libraries in specified directory and generates link flags. Demo, may cause error because of link order.
+# Not recommended to use it.
+# Usage: $(call liblinkflags,libraries directory name)
+liblinkflags = $(addprefix -l,$(patsubst lib%,%,$(basename $(notdir $(filter %.lib %.a %.so,$(call filewildcard,$1))))))
+# Message function using echo
+# Usage: $(call msg,message)
+msg = @echo $1
 # Comma
 comma :=,
-
-# Define a recursive wildcard function
-rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
 
 ####################################################
 # Compile
 ####################################################
 # Target file
-TARGET := Test
-TARGET := $(call FixExecutable,$(TARGET))
+TARGET := PathTracer
+TARGET := $(call fixexecutable,$(TARGET))
 
 # CPP compiler
 CXX := g++
@@ -35,70 +70,81 @@ CXX := g++
 CXXVERSION := c++20
 
 # Directories
-TARGET_DIR  := build/bin
+TARGET_DIR  := build
 SRC_DIR     := src
 INCLUDE_DIR := include
 LIB_DIR     := lib
 OBJ_DIR     := objs
 
+# Directory contains resources for program
+ASSETS_DIR := assets
+
 # Compiler flags
 CXXFLAGS := -g -Wall -std=$(CXXVERSION) -I$(INCLUDE_DIR) -Wextra -MMD -MP
 
 # Linker flags
-LDFLAGS := -L$(LIB_DIR)
+LDFLAGS :=
+# Link libraries, this will be append -l prefix automatically
+LDLIBS :=
 
-# Source files
-CPP_SRCS := $(call rwildcard,$(SRC_DIR)/,*.cpp)
-C_SRCS   := $(call rwildcard,$(SRC_DIR)/,*.c)
-SRCS     := $(CPP_SRCS) $(C_SRCS)
 
-# Object files
-OBJS := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(CPP_SRCS))
-OBJS += $(patsubst %.c, $(OBJ_DIR)/%.o, $(C_SRCS))
-
-# Dependency files
-DEPS := $(OBJS:.o=.d)
-
-# Directories needed by object files and dependency files
-MIRROR_DIR := $(dir $(OBJS))
-MIRROR_DIR := $(MIRROR_DIR:/=)
-MIRROR_DIR := $(sort $(MIRROR_DIR))
+# ---- Unchangeable ----
 
 # Append directory to target file
-BUILDTARGET := $(TARGET_DIR)/$(TARGET)
+override BUILDTARGET := $(TARGET_DIR)/$(TARGET)
+
+# Source files
+override CPP_SRCS := $(call rwildcard,$(SRC_DIR),*.cpp)
+override C_SRCS   := $(call rwildcard,$(SRC_DIR),*.c)
+override SRCS     := $(CPP_SRCS) $(C_SRCS)
+
+# Object files
+override OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(CPP_SRCS))
+override OBJS += $(patsubst %.c,$(OBJ_DIR)/%.o,$(C_SRCS))
+
+# Dependency files
+override DEPS := $(OBJS:.o=.d)
+
+# Determine final link flags
+override LDFLAGS += $(call libdirflags,$(LIB_DIR)) $(addprefix -l,$(LDLIBS))
+
+# Assets
+override ASSETS := $(call filewildcard,$(ASSETS_DIR))
+override TARGET_ASSETS := $(ASSETS:$(ASSETS_DIR)/%=$(TARGET_DIR)/%)
+override TARGET_ASSETS_DIRS := $(call extrdir,$(TARGET_ASSETS))
+
+# Directories needed by object files and dependency files
+override OBJS_MIRROR_DIRS := $(call extrdir,$(OBJS))
+
+# Integrate directories need to be created
+override REQUIRED_DIRS := $(sort $(TARGET_DIR) $(TARGET_ASSETS_DIRS) $(OBJS_MIRROR_DIRS))
 
 # Default target
 all: $(BUILDTARGET)
 
 # Rule to link executable
 $(BUILDTARGET): $(OBJS) | $(TARGET_DIR)
-	$(call MakeMsg, Starting linking...)
+	$(call msg,Starting linking...)
 	@$(CXX) $(OBJS) -o $@ $(LDFLAGS)
-	$(call MakeMsg, Building finished!)
+	$(call msg,Building finished!)
 
 # Rule to compile source files into object files
-$(OBJ_DIR)/%.o: %.cpp | $(MIRROR_DIR)
-	$(call MakeMsg, Compiling C++ source file to object file: $<)
+$(OBJ_DIR)/%.o: %.cpp | $(OBJS_MIRROR_DIRS)
+	$(call msg,Compiling C++ source file to object file: $<)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
-	$(call MakeMsg, Compiling finished!)
+	$(call msg,Compiling finished!)
 
 # Rule to compile C source files into object files
-$(OBJ_DIR)/%.o: %.c | $(MIRROR_DIR)
-	$(call MakeMsg, Compiling C source file to object file: $<)
+$(OBJ_DIR)/%.o: %.c | $(OBJS_MIRROR_DIRS)
+	$(call msg,Compiling C source file to object file: $<)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
-	$(call MakeMsg, Compiling finished!)
+	$(call msg,Compiling finished!)
 
 # Ensure the build directory exists
-$(TARGET_DIR):
-	$(call MakeMsg, Deteced missing directory "$@"$(comma) create new one...)
-	@$(call Mkdir, $(call FixPath, $(TARGET_DIR)))
-	$(call MakeMsg, Done!)
+$(REQUIRED_DIRS):
+	$(info Deteced missing directory "$@"$(comma) create new one...)
+	@$(call mkdir,$(call fixpath, $@))
 
-# Ensure the build directory exists
-$(MIRROR_DIR):
-	$(call MakeMsg, Deteced missing directory "$@"$(comma) create new one...)
-	@$(call Mkdir, $(call FixPath, $(MIRROR_DIR)))
-	$(call MakeMsg, Done!)
 
 # Include dependency files if they exist
 -include $(DEPS)
@@ -110,15 +156,16 @@ $(MIRROR_DIR):
 # stucture which fit this makefile.
 ####################################################
 # Directories to be create
-MKDIRS := 	$(SRC_DIR)	\
-		$(INCLUDE_DIR)	\
-		$(LIB_DIR)
+MKDIRS := 	$(SRC_DIR)		\
+			$(INCLUDE_DIR)	\
+			$(LIB_DIR)		\
+			$(ASSETS_DIR)
 
 # Run method
 init:
-	$(call MakeMsg, Starting to initialize workspace...)
-	@$(call Mkdir, $(call FixPath, $(MKDIRS)))
-	$(call MakeMsg, Initialization completed!)
+	$(call msg,Starting to initialize workspace...)
+	@$(call mkdir,$(call fixpath,$(MKDIRS)))
+	$(call msg,Initialization completed!)
 	@cd .
 
 
@@ -131,31 +178,51 @@ EXECUTE			:= ./$(TARGET)
 EXECUTEFLAGS	:=
 
 # Run method
-run: $(BUILDTARGET)
-	$(call MakeMsg, Start running program...)
-	$(info -------------------------- Start Running --------------------------)
-	@cd $(TARGET_DIR) && $(call FixPath, $(EXECUTE) $(EXECUTEFLAGS))
+run: $(BUILDTARGET) $(TARGET_ASSETS)
+	$(call msg,Start running program...)
+	$(call msg,-------------------------- Start Running --------------------------)
+	@cd $(TARGET_DIR) && $(call fixpath, $(EXECUTE)) $(EXECUTEFLAGS)
+	$(call msg,-------------------------- End Running --------------------------)
+
+$(TARGET_DIR)/%: $(ASSETS_DIR)/% | $(TARGET_ASSETS_DIRS)
+	$(info Copy asset "$^" into target "$@"...)
+	$(call cp,$(call fixpath,$^),$(call fixpath,$@))
 
 
 ####################################################
 # -- clean --
 # This call help you to clean up files generated
 # by compiler.
+# Default are obj files, dependency files and
+# and executable file
 ####################################################
-# Files to be cleaned
-# (Because of skill issue, please specify files instead of directories.)
-RM_TARGETS := 	$(BUILDTARGET)		\
-				$(OBJS)				\
-				$(DEPS)				\
-				$(TARGET_DIR)/*.ppm	\
-				$(TARGET_DIR)/*.png	\
-				$(TARGET_DIR)/*.jpg
+# Targets to be clean
+CL_TARGETS := 	$(BUILDTARGET)	\
+				$(OBJS)			\
+				$(DEPS)
 
-# Clean up build directory
+# Clean up all generated target
 clean:
-	$(call MakeMsg, Starting to delete created files...)
-	@$(call Remove, $(call FixPath, $(RM_TARGETS)))
-	$(call MakeMsg, Done!)
+	$(call msg,Starting to delete created files...)
+	@$(call rm,$(call fixpath,$(CL_TARGETS)))
+	$(call msg,Done!)
+	@cd .
+
+
+####################################################
+# -- clean-all --
+# This call help you to clean up all generated targets.
+# Default are objs and build directories.
+####################################################
+# Targets to be clean
+CLALL_TARGETS := 	$(TARGET_DIR)	\
+					$(OBJ_DIR)
+
+# Clean up all generated target
+clean-all:
+	$(call msg,Starting to delete created files...)
+	@$(call rm,$(call fixpath,$(CLALL_TARGETS)))
+	$(call msg,Done!)
 	@cd .
 
 
