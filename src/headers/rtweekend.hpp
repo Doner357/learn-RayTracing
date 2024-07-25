@@ -12,6 +12,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <random>
 
 // Constants
 #include "constants.hpp"
@@ -19,6 +20,16 @@
 // Utility Functions
 inline double DegreesToRadians(double degrees) {
     return degrees * kPi / 180.0;
+}
+
+inline double RandomDouble() {
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline double RandomDouble(double min, double max) {
+    return min + (max - min) * RandomDouble();
 }
 
 // Common Headers
