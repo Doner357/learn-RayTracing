@@ -14,8 +14,7 @@
 #include <memory>
 
 // Constants
-const double kInfinity = std::numeric_limits<double>::infinity();
-const double kPi       = 3.1415926535897932385;
+#include "constants.hpp"
 
 // Utility Functions
 inline double DegreesToRadians(double degrees) {
@@ -26,6 +25,7 @@ inline double DegreesToRadians(double degrees) {
 #include "vec3.hpp"
 #include "color.hpp"
 #include "point3.hpp"
+#include "interval.hpp"
 #include "ray.hpp"
 
 #endif // RTWEEKEND_HPP
