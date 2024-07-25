@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -101,18 +102,18 @@ color RayColor(const ray& r) {
 
 double HitSphere(const point3& center, double radius, const ray& r) {
     // Solve quadratic equation for sphere intersection.
-    // Then use b * b - 4ac to determine if the ray will intersect the sphere
+    // Use a simplified solution.
     vec3 oc = center - r.origin();
-    double a = dot(r.direction(), r.direction());
-    double b = -2.0 * dot(r.direction(), oc);
-    double c = dot(oc, oc) - radius * radius;
-    double discriminant = b * b - 4*a*c;
+    double a = r.direction().length_squared();
+    double h = dot(r.direction(), oc);
+    double c = oc.length_squared() - radius * radius;
+    double discriminant = h * h - a * c;
 
     // Solve the t
     if (discriminant < 0) {
         return -1.0;
     }
     else {
-        return (-b - std::sqrt(discriminant)) / (2.0 * a);
+        return (h - std::sqrt(discriminant)) / a;
     }
 }
