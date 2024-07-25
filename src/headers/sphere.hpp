@@ -7,11 +7,11 @@
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 
-#include <cmath>
-
 #include "hittable.hpp"
 #include "vec3.hpp"
 #include "point3.hpp"
+
+#include <cmath>
 
 class sphere : public hittable {
     public :

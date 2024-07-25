@@ -1,23 +1,19 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <vector>
 #include <cstdint>
-#include <fstream>
 
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-#include "headers/vec3.hpp"
-#include "headers/color.hpp"
-#include "headers/point3.hpp"
-#include "headers/ray.hpp"
+#include "headers/rtweekend.hpp"
+#include "headers/hittable.hpp"
+#include "headers/hittable_list.hpp"
+#include "headers/sphere.hpp"
 #include "headers/canvas.hpp"
 
 // Return the ray attributes as color
-color RayColor(const ray& r);
-// Get the value of t for ray which will hit the sphere
-double HitSphere(const point3& center, double radius, const ray& r);
+color RayColor(const ray& r, const hittable& world);
 
 int main() {
 
@@ -32,13 +28,21 @@ int main() {
     // -- Image --
     // Image attributes
     double aspect_ratio = 16.0 / 9.0;
-    int image_width = 400;
+    int32_t image_width = 400;
 
     // Calculate the image height, and ensure that it's at least 1.
-    int image_height = static_cast<int>(image_width / aspect_ratio);
+    int32_t image_height = static_cast<int32_t>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
 
-    // -- Canmera
+
+    // -- World --
+    hittable_list world;
+
+    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5));
+    world.add(std::make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0));
+
+
+    // -- Canmera --
     double focal_length    = 1.0;
     double viewport_height = 2.0;
     double viewport_width  = viewport_height * (static_cast<double>(image_width) / image_height);
@@ -58,7 +62,7 @@ int main() {
     point3 pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
 
-    // -- Canvas
+    // -- Canvas --
     // Canvas to store and write image
     Canvas canvas(image_width, image_height);
 
@@ -71,7 +75,7 @@ int main() {
             vec3 ray_direction  = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
-            color pixel_color = RayColor(r);
+            color pixel_color = RayColor(r, world);
 
             canvas << pixel_color;
         }
@@ -84,12 +88,10 @@ int main() {
     return 0;
 }
 
-color RayColor(const ray& r) {
-    // Get the hit point on sphere and visualize the normal of it.
-    double t = HitSphere(point3(0, 0, -1), 0.5, r);
-    if (t > 0.0) {
-        vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
-        return 0.5 * color(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0);
+color RayColor(const ray& r, const hittable& world) {
+    hit_record rec;
+    if (world.hit(r, 0, kInfinity, rec)) {
+        return 0.5 * (rec.normal + color(1.0, 1.0, 1.0));
     }
 
     vec3 unit_direction = unit_vector(r.direction());
@@ -98,22 +100,4 @@ color RayColor(const ray& r) {
     // Do linear interpolation " blendedValue = (1−a) * startValue + a * endValue "
     // to interpolate the blue and white color according to the y scale.
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
-}
-
-double HitSphere(const point3& center, double radius, const ray& r) {
-    // Solve quadratic equation for sphere intersection.
-    // Use a simplified solution.
-    vec3 oc = center - r.origin();
-    double a = r.direction().length_squared();
-    double h = dot(r.direction(), oc);
-    double c = oc.length_squared() - radius * radius;
-    double discriminant = h * h - a * c;
-
-    // Solve the t
-    if (discriminant < 0) {
-        return -1.0;
-    }
-    else {
-        return (h - std::sqrt(discriminant)) / a;
-    }
 }
