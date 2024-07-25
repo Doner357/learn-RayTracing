@@ -17,6 +17,7 @@
 #include <stb/stb_image_write.h>
 
 #include "color.hpp"
+#include "interval.hpp"
 
 class Canvas {
 
@@ -80,6 +81,7 @@ class Canvas {
         uint32_t components;              // The number of color components per pixel, in this project is 3.
         size_t   index;                   // Index pointing to the current pixel to be written
         std::unique_ptr<color[]> colors;  // Collected color data
+        static const interval intensity;  // Used to clamp the range of output color
 
         // Helper function to write PPM files
         void writePpm(std::string file_name) {
@@ -91,9 +93,10 @@ class Canvas {
 
             file << "P3\n" << width << " " << height << "\n255\n";
             for (size_t i = 0; i < width * height; ++i) {
-                file << static_cast<uint32_t>(colors[i].r() * 255.99) << ' '
-                     << static_cast<uint32_t>(colors[i].g() * 255.99) << ' '
-                     << static_cast<uint32_t>(colors[i].b() * 255.99) << '\n';
+                // Translate the [0,1] component values to the byte range [0,255].
+                file << static_cast<uint32_t>(256 * intensity.clamp(colors[i].r())) << ' '
+                     << static_cast<uint32_t>(256 * intensity.clamp(colors[i].g())) << ' '
+                     << static_cast<uint32_t>(256 * intensity.clamp(colors[i].b())) << '\n';
             }
             file.close();
         }
@@ -103,9 +106,10 @@ class Canvas {
             file_name = file_name + ".png";
             std::unique_ptr<uint8_t[]> data(new uint8_t[width * height * components]);
             for (size_t i = 0; i < width * height; ++i) {
-                data[i * components + 0] = static_cast<uint8_t>(colors[i].r() * 255.99);
-                data[i * components + 1] = static_cast<uint8_t>(colors[i].g() * 255.99);
-                data[i * components + 2] = static_cast<uint8_t>(colors[i].b() * 255.99);
+                // Translate the [0,1] component values to the byte range [0,255].
+                data[i * components + 0] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].r()));
+                data[i * components + 1] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].g()));
+                data[i * components + 2] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].b()));
             }
             if (!stbi_write_png(file_name.c_str(), width, height, components, data.get(), width * components)) {
                 throw std::runtime_error("ERROR::Canvas::Failed to write PNG file.");
@@ -117,9 +121,10 @@ class Canvas {
             file_name = file_name + ".jpg";
             std::unique_ptr<uint8_t[]> data(new uint8_t[width * height * components]);
             for (size_t i = 0; i < width * height; ++i) {
-                data[i * components + 0] = static_cast<uint8_t>(colors[i].r() * 255.99);
-                data[i * components + 1] = static_cast<uint8_t>(colors[i].g() * 255.99);
-                data[i * components + 2] = static_cast<uint8_t>(colors[i].b() * 255.99);
+                // Translate the [0,1] component values to the byte range [0,255].
+                data[i * components + 0] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].r()));
+                data[i * components + 1] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].g()));
+                data[i * components + 2] = static_cast<uint8_t>(256 * intensity.clamp(colors[i].b()));
             }
             if (!stbi_write_jpg(file_name.c_str(), width, height, components, data.get(), 100)) {
                 throw std::runtime_error("ERROR::Canvas::Failed to write PNG file.");
@@ -159,5 +164,7 @@ class Canvas {
             );
         }
 };
+
+const interval Canvas::intensity = interval(0.000, 0.999);
 
 #endif // CANVAS_HPP
