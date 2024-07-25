@@ -1,0 +1,58 @@
+/*
+*
+* This file declare and implement sphere class.
+*
+*/
+
+#ifndef SPHERE_HPP
+#define SPHERE_HPP
+
+#include <cmath>
+
+#include "hittable.hpp"
+#include "vec3.hpp"
+#include "point3.hpp"
+
+class sphere : public hittable {
+    public :
+        sphere(const point3& center, double radius) : center(center), radius(std::max(0.0, radius)) {}
+
+        bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override {
+            // Solve quadratic equation for sphere intersection.
+            // Use a simplified solution.
+            vec3 oc = center - r.origin();
+            double a = r.direction().length_squared();
+            double h = dot(r.direction(), oc);
+            double c = oc.length_squared() - radius * radius;
+
+            double discriminant = h * h - a * c;
+            if (discriminant < 0) {
+                return false;
+            }
+
+            double sqrtd = std::sqrt(discriminant);
+
+            // Find the nearest root that lies in the acceptable range.
+            double root = (h - sqrtd) / a;
+            if (root <= ray_tmin || ray_tmax <= root) {
+                root = (h + sqrtd) / a;
+                if (root <= ray_tmin || ray_tmax <= root) {
+                    return false;
+                }
+            }
+
+            // Update records
+            rec.t = root;
+            rec.p = r.at(rec.t);
+            rec.normal = (rec.p - center) / radius;
+
+            return true;
+        }
+
+    
+    private:
+        point3 center;
+        double radius;
+};
+
+#endif // SPHERE_HPP
