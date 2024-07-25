@@ -15,8 +15,8 @@
 
 // Return the ray attributes as color
 color RayColor(const ray& r);
-// Check whether a ray will hit a sphere
-bool HitSphere(const point3& center, double radius, const ray& r);
+// Get the value of t for ray which will hit the sphere
+double HitSphere(const point3& center, double radius, const ray& r);
 
 int main() {
 
@@ -84,9 +84,11 @@ int main() {
 }
 
 color RayColor(const ray& r) {
-    // Check if the ray will hit the hard-code sphere
-    if (HitSphere(point3(0.0, 0.0, 1.0), 0.5, r)) {
-        return color(1.0, 0.0, 0.0);    // red
+    // Get the hit point on sphere and visualize the normal of it.
+    double t = HitSphere(point3(0, 0, -1), 0.5, r);
+    if (t > 0.0) {
+        vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
+        return 0.5 * color(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0);
     }
 
     vec3 unit_direction = unit_vector(r.direction());
@@ -97,7 +99,7 @@ color RayColor(const ray& r) {
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
-bool HitSphere(const point3& center, double radius, const ray& r) {
+double HitSphere(const point3& center, double radius, const ray& r) {
     // Solve quadratic equation for sphere intersection.
     // Then use b * b - 4ac to determine if the ray will intersect the sphere
     vec3 oc = center - r.origin();
@@ -105,5 +107,12 @@ bool HitSphere(const point3& center, double radius, const ray& r) {
     double b = -2.0 * dot(r.direction(), oc);
     double c = dot(oc, oc) - radius * radius;
     double discriminant = b * b - 4*a*c;
-    return (discriminant >= 0);
+
+    // Solve the t
+    if (discriminant < 0) {
+        return -1.0;
+    }
+    else {
+        return (-b - std::sqrt(discriminant)) / (2.0 * a);
+    }
 }
