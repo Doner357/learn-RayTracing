@@ -30,7 +30,7 @@ int main() {
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
-    cam.render(world, "diffuse_Lambertian");
+    cam.render(world, "diffuse_gamma_correction");
 
     
     return 0;

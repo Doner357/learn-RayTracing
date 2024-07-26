@@ -21,9 +21,9 @@ class vec3 {
         double y() const { return e[1]; }
         double z() const { return e[2]; }
 
-        double r() { return e[0]; }
-        double g() { return e[1]; }
-        double b() { return e[2]; }
+        double r() const { return e[0]; }
+        double g() const { return e[1]; }
+        double b() const { return e[2]; }
 
         vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
         double operator[](int i) const { return e[i]; }

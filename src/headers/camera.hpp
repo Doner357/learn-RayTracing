@@ -44,7 +44,7 @@ class Camera {
                     color pixel_color(0.0, 0.0, 0.0);
                     for (uint32_t sample = 0; sample < samples_per_pixel; ++sample) {
                         ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, max_depth, world);
+                        pixel_color += ray_color(r, max_depth, world, i);
                     }
 
                     canvas << pixel_color * pixel_samples_scale;
@@ -112,7 +112,7 @@ class Camera {
             return vec3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
-        color ray_color(const ray& r, int32_t depth, const hittable& world) const {
+        color ray_color(const ray& r, int32_t depth, const hittable& world, uint32_t i) const {
             // If we've exceeded the ray bounce limit, no more light is gathered
             if (depth <= 0) {
                 return color(0.0, 0.0, 0.0);
@@ -122,7 +122,10 @@ class Camera {
             // Deal each hittable object
             if (world.hit(r, interval(0.001, kInfinity), rec)) {    // The min of interval is set to 0.001 to fix shadow acne.
                 vec3 direction = rec.normal + random_unit_vector(); // Lambertian Reflection
-                return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+                uint32_t d = image_width / 5;
+                // Just for test
+                double reflectance = (i < d * 1) ? 0.1 : ((i < d * 2) ? 0.3 : ((i < d * 3) ? 0.5 : ((i < d * 4) ? 0.7 : 0.9)));
+                return reflectance * ray_color(ray(rec.p, direction), depth - 1, world, i);
             }
 
             vec3 unit_direction = unit_vector(r.direction());

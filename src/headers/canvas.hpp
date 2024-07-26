@@ -37,7 +37,12 @@ class Canvas {
             if (index >= width * height) {
                 throw std::out_of_range("ERROR::Canvas::Index out of range: attempting to add more colors than the canvas can hold.");
             }
-            colors[index++] = c;
+
+            double r = linear_to_gamma(c.r());
+            double g = linear_to_gamma(c.g());
+            double b = linear_to_gamma(c.b());
+
+            colors[index++] = color(r, g, b);
             return *this;
         }
 
@@ -52,7 +57,7 @@ class Canvas {
 
         // Output image file.
         // The file name cannot contain the suffix type, the function will automatically generate it. 
-        void writeImage(std::string file_name, img_type type) {
+        void writeImage(std::string file_name, img_type type) const {
             if (index < width * height) {
                 throw std::runtime_error("ERROR::Canvas::Canvas not fully filled.");
             }
@@ -84,7 +89,7 @@ class Canvas {
         static const interval intensity;  // Used to clamp the range of output color
 
         // Helper function to write PPM files
-        void writePpm(std::string file_name) {
+        void writePpm(std::string file_name) const {
             file_name = file_name + ".ppm";
             std::ofstream file(file_name, std::ios::out | std::ios::binary);
             if (!file) {
@@ -102,7 +107,7 @@ class Canvas {
         }
 
         // Helper function to write PNG files using stb_image_write.h
-        void writePng(std::string file_name) {
+        void writePng(std::string file_name) const {
             file_name = file_name + ".png";
             std::unique_ptr<uint8_t[]> data(new uint8_t[width * height * components]);
             for (size_t i = 0; i < width * height; ++i) {
@@ -117,7 +122,7 @@ class Canvas {
         }
 
         // Helper function to write JPG files using stb_image_write.h
-        void writeJpg(std::string file_name) {
+        void writeJpg(std::string file_name) const {
             file_name = file_name + ".jpg";
             std::unique_ptr<uint8_t[]> data(new uint8_t[width * height * components]);
             for (size_t i = 0; i < width * height; ++i) {
