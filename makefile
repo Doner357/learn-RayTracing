@@ -197,9 +197,12 @@ $(TARGET_DIR)/%: $(ASSETS_DIR)/% | $(TARGET_ASSETS_DIRS)
 # and executable file
 ####################################################
 # Targets to be clean
-CL_TARGETS := 	$(BUILDTARGET)	\
-				$(OBJS)			\
-				$(DEPS)
+CL_TARGETS := 	$(BUILDTARGET)	    \
+				$(OBJS)			    \
+				$(DEPS)			    \
+				$(TARGET_DIR)/*.png \
+				$(TARGET_DIR)/*.jpg \
+				$(TARGET_DIR)/*.ppm
 
 # Clean up all generated target
 clean:

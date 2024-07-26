@@ -29,7 +29,7 @@ int main() {
     cam.image_width       = 400;
     cam.samples_per_pixel = 100;
 
-    cam.render(world);
+    cam.render(world, "diffuse_infinity");
 
     
     return 0;

@@ -9,6 +9,7 @@
 #define CAMERA_HPP
 
 #include <cstdint>
+#include <string>
 
 #include "rtweekend.hpp"
 #include "canvas.hpp"
@@ -18,12 +19,12 @@ class Camera {
     public:
         // -- Image --
         // Image attributes
-        double  aspect_ratio       = 1.0;  // Ratio of image width over height
+        double   aspect_ratio      = 1.0;  // Ratio of image width over height
         uint32_t image_width       = 100;  // Rendered image width in pixel count
         uint32_t samples_per_pixel = 10;   // Count of random samples for each pixel
 
 
-        void render(const hittable& world) {
+        void render(const hittable& world, std::string image_name) {
             // Inittialize
             initialize();
 
@@ -50,8 +51,6 @@ class Camera {
             }
             std::clog << "\rDone.                       \n";
 
-            // Output image name
-            std::string image_name = "image";
             // Write images
             canvas.writeImage(image_name, image_type);
         }
@@ -73,7 +72,7 @@ class Camera {
 
             pixel_samples_scale = 1.0 / samples_per_pixel;
 
-            center   = point3(0, 0, 0);
+            center = point3(0, 0, 0);
             
             double focal_length    = 1.0;
             double viewport_height = 2.0;
@@ -109,14 +108,15 @@ class Camera {
 
         vec3 sample_square() const {
             // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
-            return vec3(RandomDouble() - 0.5, RandomDouble() - 0.5, 0);
+            return vec3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
         color ray_color(const ray& r, const hittable& world) const {
             hit_record rec;
             // Deal each hittable object
             if (world.hit(r, interval(0, kInfinity), rec)) {
-                return 0.5 * (rec.normal + color(1.0, 1.0, 1.0));
+                vec3 direction = random_on_hemisphere(rec.normal);
+                return 0.5 * ray_color(ray(rec.p, direction), world);
             }
 
             vec3 unit_direction = unit_vector(r.direction());
