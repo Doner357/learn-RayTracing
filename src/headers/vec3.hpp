@@ -57,6 +57,12 @@ class vec3 {
             return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
         }
 
+        bool near_zero() const {
+            // Return ture if the vector is close to zero in all dimensions
+            double s = 1e-8;
+            return (std::fabs(e[0]) < s) && (std::fabs(e[0]) < s) && (std::fabs(e[2]) < s);
+        }
+
         // Generate random vector
         static vec3 random() {
             return vec3(random_double(), random_double(), random_double());
