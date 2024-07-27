@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <cstdint>
+#include <memory>
 
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
@@ -11,6 +12,7 @@
 #include "headers/camera.hpp"
 #include "headers/hittable.hpp"
 #include "headers/hittable_list.hpp"
+#include "headers/material.hpp"
 #include "headers/sphere.hpp"
 
 int main() {
@@ -18,8 +20,15 @@ int main() {
     // -- World --
     hittable_list world;
 
-    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5));
-    world.add(std::make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0));
+    std::shared_ptr<lambertian> material_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    std::shared_ptr<lambertian> material_center = std::make_shared<lambertian>(color(0.1, 0.2, 0.5));
+    std::shared_ptr<metal>      material_left   = std::make_shared<metal>(color(0.8, 0.8, 0.8));
+    std::shared_ptr<metal>      material_right  = std::make_shared<metal>(color(0.8, 0.6, 0.2));
+
+    world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.2),   0.5, material_center));
+    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
 
 
     // -- Canmera --
@@ -30,7 +39,7 @@ int main() {
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
-    cam.render(world, "diffuse_gamma_correction");
+    cam.render(world, "shiny_metal");
 
     
     return 0;

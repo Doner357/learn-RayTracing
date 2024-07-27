@@ -14,6 +14,7 @@
 #include "rtweekend.hpp"
 #include "canvas.hpp"
 #include "hittable.hpp"
+#include "material.hpp"
 
 class Camera {
     public:
@@ -121,8 +122,12 @@ class Camera {
             hit_record rec;
             // Deal each hittable object
             if (world.hit(r, interval(0.001, kInfinity), rec)) {    // The min of interval is set to 0.001 to fix shadow acne.
-                vec3 direction = rec.normal + random_unit_vector(); // Lambertian Reflection
-                return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+                ray   scattered;
+                color attenuation;
+                if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+                    return attenuation * ray_color(scattered, depth - 1, world);
+                }
+                return color(0.0, 0.0, 0.0);
             }
 
             vec3 unit_direction = unit_vector(r.direction());

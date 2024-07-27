@@ -7,17 +7,18 @@
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 
+#include <cmath>
+#include <memory>
+
 #include "hittable.hpp"
 #include "vec3.hpp"
 #include "point3.hpp"
 
-#include <cmath>
 
 class sphere : public hittable {
     public :
-        sphere(const point3& center, double radius) : center(center), radius(std::max(0.0, radius)) {
-
-        }
+        sphere(const point3& center, double radius, std::shared_ptr<material> mat) :
+        center(center), radius(std::max(0.0, radius)), mat(mat) {}
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
             // Solve quadratic equation for sphere intersection.
