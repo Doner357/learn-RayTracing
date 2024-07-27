@@ -7,14 +7,19 @@
 #ifndef HITTABLE_HPP
 #define HITTABLE_HPP
 
+#include <memory>
+
 #include "ray.hpp"
 #include "vec3.hpp"
 #include "interval.hpp"
+
+class material;
 
 class hit_record {
     public:
         point3 p;
         vec3   normal;
+        std::shared_ptr<material> mat;
         double t;
         bool front_face;    // Store the hit is from front or back
 
