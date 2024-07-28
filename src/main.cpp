@@ -39,7 +39,7 @@ int main() {
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
-    cam.render(world, "air_bubble");
+    cam.render(world, "hollow_glass_sphere");
 
     
     return 0;
