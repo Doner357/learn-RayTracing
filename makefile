@@ -125,7 +125,7 @@ all: $(BUILDTARGET)
 # Rule to link executable
 $(BUILDTARGET): $(OBJS) | $(TARGET_DIR)
 	$(call msg,Starting linking...)
-	$(CXX) $(LDFLAGS) $(OBJS) -o $@
+	@$(CXX) $(LDFLAGS) $(OBJS) -o $@
 	$(call msg,Building finished!)
 
 # Rule to compile source files into object files
