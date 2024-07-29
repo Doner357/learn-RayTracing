@@ -20,17 +20,13 @@ int main() {
     // -- World --
     hittable_list world;
 
-    std::shared_ptr<lambertian> material_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    std::shared_ptr<lambertian> material_center = std::make_shared<lambertian>(color(0.1, 0.2, 0.5));
-    std::shared_ptr<dielectric> material_left   = std::make_shared<dielectric>(1.50);        // Outer glass
-    std::shared_ptr<dielectric> material_bubble = std::make_shared<dielectric>(1.00 / 1.50); // inner air
-    std::shared_ptr<metal>      material_right  = std::make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
+    double R = std::cos(kPi / 4);
 
-    world.add(std::make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    world.add(std::make_shared<sphere>(point3( 0.0,    0.0, -1.2),   0.5, material_center));
-    world.add(std::make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
-    world.add(std::make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.4, material_bubble));
-    world.add(std::make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
+    std::shared_ptr<lambertian> material_left  = std::make_shared<lambertian>(color(0.0, 0.0, 1.0));
+    std::shared_ptr<lambertian> material_right = std::make_shared<lambertian>(color(1.0, 0.0, 0.0));
+
+    world.add(std::make_shared<sphere>(point3(-R, 0.0, -1.0), R, material_left));
+    world.add(std::make_shared<sphere>(point3( R, 0.0, -1.0), R, material_right));
 
 
     // -- Canmera --
@@ -41,7 +37,9 @@ int main() {
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
-    cam.render(world, "hollow_glass_sphere");
+    cam.vfov = 90.0;    // FOV is 90 degrees
+
+    cam.render(world, "wide-angle_view");
 
     
     return 0;

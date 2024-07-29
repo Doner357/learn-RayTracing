@@ -18,7 +18,7 @@
 #include "constants.hpp"
 
 // Utility Functions
-inline double DegreesToRadians(double degrees) {
+inline double degrees_to_radians(double degrees) {
     return degrees * kPi / 180.0;
 }
 
