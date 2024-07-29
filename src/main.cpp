@@ -41,12 +41,12 @@ int main() {
     cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
-    cam.vfov     = 90.0;    // FOV is 90 degrees
+    cam.vfov     = 20.0;    // FOV is 20 degrees
     cam.lookfrom = point3(-2.0, 2.0, 1);
     cam.lookat   = point3(0.0, 0.0, -1.0);
     cam.vup      = vec3(0.0, 1.0, 0.0);
 
-    cam.render(world, "a_distant_view_zoom_far");
+    cam.render(world, "a_distant_view_zoom_in");
 
     
     return 0;
