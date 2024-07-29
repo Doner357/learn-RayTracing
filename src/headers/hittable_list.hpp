@@ -5,13 +5,13 @@
 *
 */
 
+#ifndef HITTABLE_LIST_HPP
+#define HITTABLE_LIST_HPP
+
 #include "hittable.hpp"
 
 #include <memory>
 #include <vector>
-
-#ifndef HITTABLE_LIST_HPP
-#define HITTABLE_LIST_HPP
 
 class hittable_list : public hittable {
     public:

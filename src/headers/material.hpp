@@ -1,3 +1,9 @@
+/*
+*
+* This file declare and implement material interface to store a
+*
+*/
+
 #ifndef MATERIAL_HPP
 #define MATERIAL_HPP
 
