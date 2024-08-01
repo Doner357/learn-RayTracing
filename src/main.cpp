@@ -64,8 +64,8 @@ int main() {
     Camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1920;
-    cam.samples_per_pixel = 500;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
     cam.max_depth         = 50;
 
     cam.vfov     = 20;
@@ -76,8 +76,11 @@ int main() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    std::chrono::time_point start_time = std::chrono::steady_clock::now();  // Timer
-    cam.render(world, "Ray_Tracing_in_On_Weekend--Final_Render_1920x");
+    // Timer
+    std::chrono::time_point start_time = std::chrono::steady_clock::now();
+    // Start rendering
+    cam.render(world, "initialize");
+    // Stop timer
     std::chrono::time_point end_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> duration = end_time - start_time;
     

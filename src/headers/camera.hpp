@@ -158,11 +158,9 @@ class Camera {
                 return color(0.0, 0.0, 0.0);
             }
 
-            vec3 sun_dir = unit_vector(vec3(-13.0, 8.0, -3.0));
-            color sun_color = color(10.0, 10.0, 10.0) * std::pow(std::max(dot(r.direction(), sun_dir), 0.0), 128);
             vec3 unit_direction = unit_vector(r.direction());
             double a = 0.5 * (unit_direction.y() + 1.0);
-            return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.409, 0.607, 0.821) + sun_color;
+            return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
         }
 };
 
