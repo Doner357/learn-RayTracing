@@ -12,6 +12,7 @@
 #include "ray.hpp"
 #include "vec3.hpp"
 #include "interval.hpp"
+#include "aabb.hpp"
 
 class material;
 
@@ -37,6 +38,9 @@ class hittable {
         virtual ~hittable() = default;
 
         virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+
+        // Function to get bounding box
+        virtual aabb bounding_box() const = 0;
 };
 
 #endif // HITTABLE_HPP

@@ -32,6 +32,10 @@ inline double random_double(double min, double max) {
     return min + (max - min) * random_double();
 }
 
+inline int random_int(int min, int max) {
+    return static_cast<int>(random_double(static_cast<double>(min), static_cast<double>(max)));
+}
+
 // Common Headers
 #include "vec3.hpp"
 #include "color.hpp"

@@ -15,6 +15,7 @@
 #include "headers/hittable_list.hpp"
 #include "headers/material.hpp"
 #include "headers/sphere.hpp"
+#include "headers/bvh.hpp"
 
 int main() {
     
@@ -62,6 +63,8 @@ int main() {
     auto material3 = std::make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(std::make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
+    world = hittable_list(std::make_shared<bvh_node>(world));
+
     Camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
@@ -80,7 +83,7 @@ int main() {
     // Timer
     std::chrono::time_point start_time = std::chrono::steady_clock::now();
     // Start rendering
-    cam.render(world, "motion_blur");
+    cam.render(world, "bvh");
     // Stop timer
     std::chrono::time_point end_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> duration = end_time - start_time;
