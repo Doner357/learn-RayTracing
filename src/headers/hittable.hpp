@@ -22,6 +22,8 @@ class hit_record {
         vec3   normal;
         std::shared_ptr<material> mat;
         double t;
+        double u;
+        double v;
         bool front_face;    // Store the hit is from front or back
 
         void set_face_normal(const ray& r, const vec3& outward_normal) {

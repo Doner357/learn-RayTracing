@@ -16,14 +16,15 @@
 #include "headers/material.hpp"
 #include "headers/sphere.hpp"
 #include "headers/bvh.hpp"
+#include "headers/texture.hpp"
 
 int main() {
     
     // -- World --
     hittable_list world;
 
-    auto ground_material = std::make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+    auto checker = std::make_shared<checker_texture>(0.32, color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    world.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, std::make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -83,7 +84,7 @@ int main() {
     // Timer
     std::chrono::time_point start_time = std::chrono::steady_clock::now();
     // Start rendering
-    cam.render(world, "bvh");
+    cam.render(world, "checkered_ground");
     // Stop timer
     std::chrono::time_point end_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> duration = end_time - start_time;
