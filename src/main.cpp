@@ -8,7 +8,7 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
-#include "headers/rtweekend.hpp"
+#include <rtw/rtw_stb_image.hpp>
 
 #include "headers/camera.hpp"
 #include "headers/hittable.hpp"
@@ -18,7 +18,23 @@
 #include "headers/bvh.hpp"
 #include "headers/texture.hpp"
 
+// Scenes could be rendered
+void bouncing_spheres();
+void checkered_spheres();
+void earth();
+
 int main() {
+    switch (3)  {
+    case 1: bouncing_spheres();  break;
+    case 2: checkered_spheres(); break;
+    case 3: earth();             break;
+    default:  break;
+    }
+
+    return 0;
+}
+
+void bouncing_spheres() {
     
     // -- World --
     hittable_list world;
@@ -84,7 +100,7 @@ int main() {
     // Timer
     std::chrono::time_point start_time = std::chrono::steady_clock::now();
     // Start rendering
-    cam.render(world, "checkered_ground");
+    cam.render(world, "bouncing_spheres");
     // Stop timer
     std::chrono::time_point end_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> duration = end_time - start_time;
@@ -97,9 +113,95 @@ int main() {
     std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(time);
 
     std::ofstream time_record;
-    time_record.open("time.txt");
+    time_record.open("bouncing_spheres_time.txt");
     time_record << "Takes: " << h << ' ' << m << ' ' << s << std::endl;
     time_record.close();
+}
 
-    return 0;
+void checkered_spheres() {
+    
+    // -- World --
+    hittable_list world;
+
+    auto checker = std::make_shared<checker_texture>(0.32, color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+
+    world.add(std::make_shared<sphere>(point3(0,-10, 0), 10, std::make_shared<lambertian>(checker)));
+    world.add(std::make_shared<sphere>(point3(0, 10, 0), 10, std::make_shared<lambertian>(checker)));
+
+    world = hittable_list(std::make_shared<bvh_node>(world));
+
+    Camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(13,2,3);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0.6;
+    cam.focus_dist    = 10.0;
+
+    // Timer
+    std::chrono::time_point start_time = std::chrono::steady_clock::now();
+    // Start rendering
+    cam.render(world, "checkered_spheres");
+    // Stop timer
+    std::chrono::time_point end_time = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duration = end_time - start_time;
+    
+    std::chrono::duration time = end_time - start_time;
+    std::chrono::hours h = std::chrono::duration_cast<std::chrono::hours>(time);
+    time -= h;
+    std::chrono::minutes m = std::chrono::duration_cast<std::chrono::minutes>(time);
+    time -= m;
+    std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(time);
+
+    std::ofstream time_record;
+    time_record.open("checkered_spheres_time.txt");
+    time_record << "Takes: " << h << ' ' << m << ' ' << s << std::endl;
+    time_record.close();
+}
+
+void earth() {
+    std::shared_ptr<image_texture> earth_texture = std::make_shared<image_texture>("earthmap.jpg");
+    std::shared_ptr<lambertian> earth_surface = std::make_shared<lambertian>(earth_texture);
+    std::shared_ptr<sphere> globe = std::make_shared<sphere>(point3(0,0,0), 2, earth_surface);
+
+    Camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(0,0,12);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    // Timer
+    std::chrono::time_point start_time = std::chrono::steady_clock::now();
+    // Start rendering
+    cam.render(hittable_list(globe), "earth-mapped_sphere");
+    // Stop timer
+    std::chrono::time_point end_time = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duration = end_time - start_time;
+    
+    std::chrono::duration time = end_time - start_time;
+    std::chrono::hours h = std::chrono::duration_cast<std::chrono::hours>(time);
+    time -= h;
+    std::chrono::minutes m = std::chrono::duration_cast<std::chrono::minutes>(time);
+    time -= m;
+    std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(time);
+
+    std::ofstream time_record;
+    time_record.open("earth-mapped_sphere.txt");
+    time_record << "Takes: " << h << ' ' << m << ' ' << s << std::endl;
+    time_record.close();
 }

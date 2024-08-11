@@ -202,7 +202,8 @@ CL_TARGETS := 	$(BUILDTARGET)	    \
 				$(DEPS)			    \
 				$(TARGET_DIR)/*.png \
 				$(TARGET_DIR)/*.jpg \
-				$(TARGET_DIR)/*.ppm
+				$(TARGET_DIR)/*.ppm	\
+				$(TARGET_DIR)/*.txt
 
 # Clean up all generated target
 clean:
