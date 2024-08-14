@@ -8,6 +8,7 @@
 
 #include "color.hpp"
 #include "point3.hpp"
+#include "perlin.hpp"
 
 class texture {
     public:
@@ -88,6 +89,19 @@ class image_texture : public texture {
 
     private:
         rtw_image image;
+};
+
+
+class noise_texture : public texture {
+    public:
+        noise_texture() {}
+
+        color value(double u, double v, const point3& p) const override {
+            return color(1.0, 1.0, 1.0) * noise.noise(p);
+        }
+
+    private:
+        perlin noise;
 };
 
 #endif

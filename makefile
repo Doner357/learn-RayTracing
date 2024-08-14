@@ -83,7 +83,7 @@ ASSETS_DIR := assets
 CXXFLAGS := -g -Wall -std=$(CXXVERSION) -I$(INCLUDE_DIR) -Wextra -MMD -MP
 
 # Linker flags
-LDFLAGS := -static
+LDFLAGS := -static-libstdc++
 # Link libraries, this will be append -l prefix automatically
 LDLIBS :=
 
@@ -125,7 +125,7 @@ all: $(BUILDTARGET)
 # Rule to link executable
 $(BUILDTARGET): $(OBJS) | $(TARGET_DIR)
 	$(call msg,Starting linking...)
-	@$(CXX) $(LDFLAGS) $(OBJS) -o $@
+	@$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 	$(call msg,Building finished!)
 
 # Rule to compile source files into object files

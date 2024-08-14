@@ -22,12 +22,14 @@
 void bouncing_spheres();
 void checkered_spheres();
 void earth();
+void perlin_spheres();
 
 int main() {
-    switch (3)  {
+    switch (4)  {
     case 1: bouncing_spheres();  break;
     case 2: checkered_spheres(); break;
     case 3: earth();             break;
+    case 4: perlin_spheres();    break;
     default:  break;
     }
 
@@ -204,4 +206,28 @@ void earth() {
     time_record.open("earth-mapped_sphere.txt");
     time_record << "Takes: " << h << ' ' << m << ' ' << s << std::endl;
     time_record.close();
+}
+
+void perlin_spheres() {
+    hittable_list world;
+
+    auto pertext = std::make_shared<noise_texture>();
+    world.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, std::make_shared<lambertian>(pertext)));
+    world.add(std::make_shared<sphere>(point3(0,2,0), 2, std::make_shared<lambertian>(pertext)));
+
+    Camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(13,2,3);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, "perlin_sphere");
 }
