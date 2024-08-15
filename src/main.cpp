@@ -229,5 +229,5 @@ void perlin_spheres() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, "perlin_sphere");
+    cam.render(world, "trilinear_perlin_sphere");
 }
