@@ -8,9 +8,9 @@
 class perlin {
     public:
         perlin() {
-            randfloat = new double[point_count];
+            randvec = new vec3[point_count];
             for (int32_t i = 0; i < point_count; ++i) {
-                randfloat[i] = random_double();
+                randvec[i] = unit_vector(vec3::random(-1.0, 1.0));
             }
 
             perm_x = perlin_generate_perm();
@@ -19,7 +19,7 @@ class perlin {
         }
 
         ~perlin() {
-            delete [] randfloat;
+            delete [] randvec;
             delete [] perm_x;
             delete [] perm_y;
             delete [] perm_z;
@@ -29,22 +29,17 @@ class perlin {
             double u = p.x() - std::floor(p.x());
             double v = p.y() - std::floor(p.y());
             double w = p.z() - std::floor(p.z());
-            
-            // Hermitian Cubic smoothing
-            u = u * u * (3 - 2 * u);
-            v = v * v * (3 - 2 * v);
-            w = w * w * (3 - 2 * w);
 
             int32_t i = int32_t(std::floor(p.x()));
             int32_t j = int32_t(std::floor(p.y()));
             int32_t k = int32_t(std::floor(p.z()));
-            double c[2][2][2];
+            vec3 c[2][2][2];
 
             for (int32_t di = 0; di < 2; ++di) {
                 for (int32_t dj = 0; dj < 2; ++dj) {
                     for (int32_t dk = 0; dk < 2; ++dk) {
                         // Hash
-                        c[di][dj][dk] = randfloat[
+                        c[di][dj][dk] = randvec[
                             perm_x[(i + di) & 255] ^
                             perm_y[(j + dj) & 255] ^
                             perm_z[(k + dk) & 255]
@@ -53,13 +48,13 @@ class perlin {
                 }
             }
 
-            return trilinear_interp(c, u, v, w);
+            return perlin_interp(c, u, v, w);
         }
 
     
     private:
         static const int point_count = 256;
-        double* randfloat;
+        vec3*    randvec;
         int32_t* perm_x;
         int32_t* perm_y;
         int32_t* perm_z;
@@ -86,15 +81,21 @@ class perlin {
         }
 
         // Trilinear interpolation for given point
-        static double trilinear_interp(double c[2][2][2], double u, double v, double w) {
+        static double perlin_interp(const vec3 c[2][2][2], double u, double v, double w) {
+            // Hermitian smoothing
+            double uu = u * u * (3 - 2 * u);
+            double vv = v * v * (3 - 2 * v);
+            double ww = w * w * (3 - 2 * w);
             double accum = 0.0;
-            for (int32_t i = 0; i < 2; ++i) {
-                for (int32_t j = 0; j < 2; ++j) {
-                    for (int32_t k = 0; k < 2; ++k) {
-                        accum += (i * u + (1 - i) * (1 - u)) *
-                                 (j * v + (1 - j) * (1 - v)) *
-                                 (k * w + (1 - k) * (1 - w)) *
-                                 c[i][j][k];
+
+            for (int32_t i = 0; i < 2; i++) {
+                for (int32_t j = 0; j < 2; j++) {
+                    for (int32_t k = 0; k < 2; k++) {
+                        vec3 weight_v(u - i, v - j, w - k);
+                        accum += (i * uu + (1 - i) * (1 - uu)) *
+                                 (j * vv + (1 - j) * (1 - vv)) *
+                                 (k * ww + (1 - k) * (1 - ww)) *
+                                 dot(c[i][j][k], weight_v);
                     }
                 }
             }

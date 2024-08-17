@@ -45,7 +45,8 @@ filewildcard = $(call extrfile,$(call rwildcard,$1,*))
 # Automatically scans libraries in specified directory and generates link directory flags.
 # Usage: $(call libdirflags,libraries directory name)
 libdirflags = $(addprefix -L,$(call dirwildcard,$1))
-# Automatically scans libraries in specified directory and generates link flags. Demo, may cause error because of link order.
+# Automatically scans libraries in specified directory and generates link flags.
+# Its use is not recommended because link order is important for the linker.
 # Not recommended to use it.
 # Usage: $(call liblinkflags,libraries directory name)
 liblinkflags = $(addprefix -l,$(patsubst lib%,%,$(basename $(notdir $(filter %.lib %.a %.so,$(call filewildcard,$1))))))
