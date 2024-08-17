@@ -229,5 +229,5 @@ void perlin_spheres() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, "perlin_shifted_off_integer_values");
+    cam.render(world, "perlin_texture_with_turbulence");
 }

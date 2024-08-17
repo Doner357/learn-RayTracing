@@ -51,6 +51,21 @@ class perlin {
             return perlin_interp(c, u, v, w);
         }
 
+        // Turbulence (Composite noise that has multiple summed frequencies is used).
+        double turb(const point3& p, int depth) const {
+            double accum  = 0.0;
+            double weight = 1.0;
+            point3 temp_p = p;
+
+            for(int32_t i = 0; i < depth; i++) {
+                accum  += weight * noise(temp_p);
+                weight *= 0.5;
+                temp_p *= 2.0;
+            }
+
+            return fabs(accum);
+        }
+
     
     private:
         static const int point_count = 256;
