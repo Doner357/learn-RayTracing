@@ -29,6 +29,11 @@ class perlin {
             double u = p.x() - std::floor(p.x());
             double v = p.y() - std::floor(p.y());
             double w = p.z() - std::floor(p.z());
+            
+            // Hermitian Cubic smoothing
+            u = u * u * (3 - 2 * u);
+            v = v * v * (3 - 2 * v);
+            w = w * w * (3 - 2 * w);
 
             int32_t i = int32_t(std::floor(p.x()));
             int32_t j = int32_t(std::floor(p.y()));
