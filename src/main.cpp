@@ -16,6 +16,7 @@
 #include "headers/material.hpp"
 #include "headers/sphere.hpp"
 #include "headers/quad.hpp"
+#include "headers/triangle.hpp"
 #include "headers/bvh.hpp"
 #include "headers/texture.hpp"
 
@@ -25,14 +26,16 @@ void checkered_spheres();
 void earth();
 void perlin_spheres();
 void quads();
+void triangles();
 
 int main() {
-    switch (5)  {
-    case 1: bouncing_spheres();  break;
-    case 2: checkered_spheres(); break;
-    case 3: earth();             break;
-    case 4: perlin_spheres();    break;
-    case 5: quads();    break;
+    switch (-5)  {
+    case  1: bouncing_spheres();  break;
+    case  2: checkered_spheres(); break;
+    case  3: earth();             break;
+    case  4: perlin_spheres();    break;
+    case  5: quads();             break;
+    case -5: triangles();         break;
     default:  break;
     }
 
@@ -216,4 +219,32 @@ void quads() {
     cam.defocus_angle = 0;
 
     cam.render(world, "quads");
+}
+
+void triangles() {
+    hittable_list world;
+
+    // Materials
+    auto red     = std::make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    auto green   = std::make_shared<lambertian>(color(0.2, 1.0, 0.2));
+
+    // Triangles
+    world.add(std::make_shared<triangle>(point3( 0,  0,  0), point3(-2,  2,  0), point3(  2,  2,  0), red));
+    world.add(std::make_shared<triangle>(point3( 0,  0,  0), point3(-2, -2,  0), point3(  2, -2,  0), green));
+
+    Camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 80;
+    cam.lookfrom = point3(0,0,9);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, "triangles");
 }
