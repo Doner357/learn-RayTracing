@@ -46,6 +46,9 @@ class Camera {
                                           Canvas::img_type::png  |  // .png
                                           Canvas::img_type::jpg;    // .jpg
 
+            // Timer
+            std::chrono::time_point start_time = std::chrono::steady_clock::now();
+
             // -- Render --
             for (uint32_t j = 0; j < image_height; j++) {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
@@ -60,6 +63,22 @@ class Camera {
                 }
             }
             std::clog << "\rDone.                       \n";
+
+            // Stop timer
+            std::chrono::time_point end_time = std::chrono::steady_clock::now();
+            std::chrono::duration<double> duration = end_time - start_time;
+            
+            std::chrono::duration time = end_time - start_time;
+            std::chrono::hours h = std::chrono::duration_cast<std::chrono::hours>(time);
+            time -= h;
+            std::chrono::minutes m = std::chrono::duration_cast<std::chrono::minutes>(time);
+            time -= m;
+            std::chrono::seconds s = std::chrono::duration_cast<std::chrono::seconds>(time);
+
+            std::ofstream time_record;
+            time_record.open(image_name + std::string(".txt"));
+            time_record << "Takes: " << h << ' ' << m << ' ' << s << std::endl;
+            time_record.close();
 
             // Write images
             canvas.writeImage(image_name, image_type);
