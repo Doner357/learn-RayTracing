@@ -28,9 +28,10 @@ void perlin_spheres();
 void quads();
 void triangles();
 void simple_light();
+void cornell_box();
 
 int main() {
-    switch (6)  {
+    switch (7)  {
     case  1: bouncing_spheres();  break;
     case  2: checkered_spheres(); break;
     case  3: earth();             break;
@@ -38,6 +39,7 @@ int main() {
     case  5: quads();             break;
     case -5: triangles();         break;
     case  6: simple_light();      break;
+    case  7: cornell_box();       break;
     default:  break;
     }
 
@@ -284,4 +286,37 @@ void simple_light() {
     cam.defocus_angle = 0;
 
     cam.render(world, "simple_light_sphere");
+}
+
+void cornell_box() {
+    hittable_list world;
+
+    auto red   = std::make_shared<lambertian>(color(0.65, 0.05, 0.05));
+    auto white = std::make_shared<lambertian>(color(0.73, 0.73, 0.73));
+    auto green = std::make_shared<lambertian>(color(0.12, 0.45, 0.15));
+    auto light = std::make_shared<diffuse_light>(color(15, 15, 15));
+
+    world.add(std::make_shared<quad>(point3( 555,    0,    0), vec3(   0,  555,  0), vec3( 0,    0,  555), green));
+    world.add(std::make_shared<quad>(point3(   0,    0,    0), vec3(   0,  555,  0), vec3( 0,    0,  555), red));
+    world.add(std::make_shared<quad>(point3( 343,  554,  332), vec3(-130,    0,  0), vec3( 0,    0, -105), light));
+    world.add(std::make_shared<quad>(point3(   0,    0,    0), vec3( 555,    0,  0), vec3( 0,    0,  555), white));
+    world.add(std::make_shared<quad>(point3( 555,  555,  555), vec3(-555,    0,  0), vec3( 0,    0, -555), white));
+    world.add(std::make_shared<quad>(point3(   0,    0,  555), vec3( 555,    0,  0), vec3( 0,  555,    0), white));
+
+    Camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_depth         = 50;
+    cam.background        = color(0,0,0);
+
+    cam.vfov     = 40;
+    cam.lookfrom = point3(278, 278, -800);
+    cam.lookat   = point3(278, 278, 0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, "cornell_box");
 }
