@@ -15,10 +15,10 @@ class constant_medium : public hittable{
             phase_function(std::make_shared<isotropic>(tex))
         {}
 
-        constant_medium(std::shared_ptr<hittable> boundary, double density, const color& abedo) :
+        constant_medium(std::shared_ptr<hittable> boundary, double density, const color& albedo) :
             boundary(boundary),
             neg_inv_density(-1 / density),
-            phase_function(std::make_shared<isotropic>(abedo))
+            phase_function(std::make_shared<isotropic>(albedo))
         {}
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
