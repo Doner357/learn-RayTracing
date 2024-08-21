@@ -10,7 +10,13 @@ class triangle : public quad {
 
         virtual bool is_interior(double a, double b, hit_record& rec) const {
             // Barycentric coordinate condition
-            return (a > 0 && b > 0 && a + b < 1);
+            if (!(a > 0 && b > 0 && a + b < 1)) {
+                return false;
+            }
+
+            rec.u = a;
+            rec.v = b;
+            return true;
         }
 };
 
