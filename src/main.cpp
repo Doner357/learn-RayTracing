@@ -34,6 +34,7 @@ void cornell_smoke();
 void final_scene(int image_width, int samples_per_pixel, int max_depth);
 
 int main() {
+    /*
     hittable_list world;
 
     auto red   = std::make_shared<lambertian>(color(.65, .05, .05));
@@ -79,6 +80,33 @@ int main() {
     cam.defocus_angle = 0;
 
     cam.render(world, "stratificated_Cornell_box");
+    */
+    int32_t a = 0;
+    int32_t b = 2;
+    int32_t N = 1000000;
+    double sum = 0.0;
+    for (int32_t i = 0; i < N; i++) {
+        double x = random_double(a, b);
+        sum += x * x;
+    }
+    std::cout << std::fixed << std::setprecision(12);
+    std::cout << "x^2: I = " << (b - a) * (sum / N) << '\n';
+
+    sum = 0.0;
+    for (int32_t i = 0; i < N; i++) {
+        double x = random_double(a, b);
+        sum += std::pow(std::sin(x), 5.0);
+    }
+    std::cout << std::fixed << std::setprecision(12);
+    std::cout << "sin^5(x): I = " << (b - a) * (sum / N) << '\n';
+    
+    sum = 0.0;
+    for (int32_t i = 0; i < N; i++) {
+        double x = random_double(a, b);
+        sum += std::log(std::sin(x));
+    }
+    std::cout << std::fixed << std::setprecision(12);
+    std::cout << "log(sin(x)): I = " << (b - a) * (sum / N) << '\n';
 
     return 0;
 }
