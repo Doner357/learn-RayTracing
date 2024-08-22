@@ -34,46 +34,51 @@ void cornell_smoke();
 void final_scene(int image_width, int samples_per_pixel, int max_depth);
 
 int main() {
-    /*
-    switch (9)  {
-    case  1: bouncing_spheres();           break;
-    case  2: checkered_spheres();          break;
-    case  3: earth();                      break;
-    case  4: perlin_spheres();             break;
-    case  5: quads();                      break;
-    case -5: triangles();                  break;
-    case  6: simple_light();               break;
-    case  7: cornell_box();                break;
-    case  8: cornell_smoke();              break;
-    case  9: final_scene(800, 10000, 40);  break;
-    default: final_scene(400,   250,  4);  break;
-    }
-    */
+    hittable_list world;
 
-    int32_t inside_circle = 0;
-    int32_t inside_circle_stratified = 0;
-    int32_t sqrt_N = 1000;
-    for (int32_t i = 0; i < sqrt_N; ++i) {
-        for (int32_t j = 0; j < sqrt_N; j++) {
-            double x = random_double(-1, 1);
-            double y = random_double(-1, 1);
-            if (x * x + y * y < 1){
-                inside_circle++;
-            }
-            x = 2 * ((i + random_double()) / sqrt_N) - 1;
-            y = 2 * ((j + random_double()) / sqrt_N) - 1;
-            if (x * x + y * y < 1) {
-                inside_circle_stratified++;
-            }
-        }
-    }
+    auto red   = std::make_shared<lambertian>(color(.65, .05, .05));
+    auto white = std::make_shared<lambertian>(color(.73, .73, .73));
+    auto green = std::make_shared<lambertian>(color(.12, .45, .15));
+    auto light = std::make_shared<diffuse_light>(color(15, 15, 15));
 
-    std::cout << std::fixed << std::setprecision(12);
-    std::cout
-        << "Regular    Estimate of Pi = "
-        << (4.0 * inside_circle) / (sqrt_N * sqrt_N) << '\n'
-        << "Stratified Estimate of Pi = "
-        << (4.0 * inside_circle_stratified) / (sqrt_N * sqrt_N) << '\n';
+    // Cornell box sides
+    world.add(std::make_shared<quad>(point3(555,0,0), vec3(0,0,555), vec3(0,555,0), green));
+    world.add(std::make_shared<quad>(point3(0,0,555), vec3(0,0,-555), vec3(0,555,0), red));
+    world.add(std::make_shared<quad>(point3(0,555,0), vec3(555,0,0), vec3(0,0,555), white));
+    world.add(std::make_shared<quad>(point3(0,0,555), vec3(555,0,0), vec3(0,0,-555), white));
+    world.add(std::make_shared<quad>(point3(555,0,555), vec3(-555,0,0), vec3(0,555,0), white));
+
+    // Light
+    world.add(std::make_shared<quad>(point3(213,554,227), vec3(130,0,0), vec3(0,0,105), light));
+
+    // Box 1
+    std::shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), white);
+    box1 = std::make_shared<rotate_y>(box1, 15);
+    box1 = std::make_shared<translate>(box1, vec3(265,0,295));
+    world.add(box1);
+
+    // Box 2
+    std::shared_ptr<hittable> box2 = box(point3(0,0,0), point3(165,165,165), white);
+    box2 = std::make_shared<rotate_y>(box2, -18);
+    box2 = std::make_shared<translate>(box2, vec3(130,0,65));
+    world.add(box2);
+
+    Camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 600;
+    cam.samples_per_pixel = 64;
+    cam.max_depth         = 50;
+    cam.background        = color(0,0,0);
+
+    cam.vfov     = 40;
+    cam.lookfrom = point3(278, 278, -800);
+    cam.lookat   = point3(278, 278, 0);
+    cam.vup      = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, "stratificated_Cornell_box");
 
     return 0;
 }

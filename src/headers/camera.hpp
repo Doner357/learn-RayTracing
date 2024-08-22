@@ -55,9 +55,11 @@ class Camera {
                 std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
                 for (uint32_t i = 0; i < image_width; i++) {
                     color pixel_color(0.0, 0.0, 0.0);
-                    for (uint32_t sample = 0; sample < samples_per_pixel; ++sample) {
-                        ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, max_depth, world);
+                    for (int32_t s_j = 0; s_j < sqrt_spp; s_j++) {
+                        for (int32_t s_i = 0; s_i < sqrt_spp; s_i++) {
+                            ray r = get_ray(i, j, s_i, s_j);
+                            pixel_color += ray_color(r, max_depth, world);
+                        }
                     }
 
                     canvas << pixel_color * pixel_samples_scale;
@@ -89,6 +91,8 @@ class Camera {
     private:
         uint32_t image_height;         // Rendered image height
         double   pixel_samples_scale;  // Color scale factor for a sum of pixel samples
+        int32_t  sqrt_spp;             // Square root of number of samples per pixel
+        double   recip_sqrt_spp;       // 1 / sqrt_spp
         point3   center;               // Camera center
         point3   pixel00_loc;          // Location of pixel 0, 0
         vec3     pixel_delta_u;        // Offset to pixel to the right
@@ -102,6 +106,10 @@ class Camera {
             // Calculate the image height, and ensure that it's at least 1.
             image_height = static_cast<uint32_t>(image_width / aspect_ratio);
             image_height = (image_height < 1) ? 1 : image_height;
+
+            sqrt_spp = static_cast<int32_t>(std::sqrt(samples_per_pixel));
+            pixel_samples_scale = 1.0 / (sqrt_spp * sqrt_spp);
+            recip_sqrt_spp = 1.0 / sqrt_spp;
 
             pixel_samples_scale = 1.0 / samples_per_pixel;
 
@@ -136,10 +144,10 @@ class Camera {
             defocus_disk_v = v * defocus_radius;
         }
 
-        ray get_ray(uint32_t i, uint32_t j) const {
+        ray get_ray(uint32_t i, uint32_t j, int32_t s_i, int32_t s_j) const {
             // Construct a camera ray originating from the defocus disk and directed at a randomly
-            // sampled point around the pixel location i, j.
-            vec3 offset = sample_square();
+            // sampled point around the pixel location i, j for stratified sample square s_i, s_j.
+            vec3 offset = sample_square_stratified(s_i, s_j);
             point3 pixel_sample = pixel00_loc +
                                   ((i + offset.x()) * pixel_delta_u) +
                                   ((j + offset.y()) * pixel_delta_v);
@@ -149,6 +157,16 @@ class Camera {
             double ray_time = random_double();
 
             return ray(ray_origin, ray_direction, ray_time);
+        }
+
+        vec3 sample_square_stratified(int32_t s_i, int32_t s_j) const {
+            // Returns the vector to a random point in the square sub-pixel specified by grid
+            // indices s_i and s_j, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
+
+            double px = ((s_i + random_double()) * recip_sqrt_spp) - 0.5;
+            double py = ((s_j + random_double()) * recip_sqrt_spp) - 0.5;
+
+            return vec3(px, py, 0);
         }
 
         vec3 sample_square() const {
