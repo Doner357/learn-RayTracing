@@ -50,17 +50,22 @@ int main() {
     }
     */
 
-   int N = 100000;
-   int32_t inside_circle = 0;
-   for (int32_t i = 0; i < N; ++i) {
-        double x = random_double(-1.0, 1.0);
-        double y = random_double(-1.0, 1.0);
-        if (x * x + y * y < 1) {    // Radius = 1
+    int32_t inside_circle = 0;
+    int32_t runs = 0;
+    std::cout << std::fixed << std::setprecision(12);
+    while(true) {
+        runs++;
+        double x = random_double(-1, 1);
+        double y = random_double(-1, 1);
+        if (x * x + y * y < 1) {
             inside_circle++;
         }
-   }
-    std::cout << std::fixed << std::setprecision(12);
-    std::cout << "Estimate of Pi = " << (4.0 * inside_circle) / N << '\n';
+        if (runs % 100000 == 0) {
+            std::cout << "Estimate of Pi = "
+                      << (4.0 * inside_circle) / runs
+                      << '\n';
+        }
+    }
 
     return 0;
 }
