@@ -34,6 +34,7 @@ void cornell_smoke();
 void final_scene(int image_width, int samples_per_pixel, int max_depth);
 
 int main() {
+    /*
     switch (9)  {
     case  1: bouncing_spheres();           break;
     case  2: checkered_spheres();          break;
@@ -47,6 +48,19 @@ int main() {
     case  9: final_scene(800, 10000, 40);  break;
     default: final_scene(400,   250,  4);  break;
     }
+    */
+
+   int N = 100000;
+   int32_t inside_circle = 0;
+   for (int32_t i = 0; i < N; ++i) {
+        double x = random_double(-1.0, 1.0);
+        double y = random_double(-1.0, 1.0);
+        if (x * x + y * y < 1) {    // Radius = 1
+            inside_circle++;
+        }
+   }
+    std::cout << std::fixed << std::setprecision(12);
+    std::cout << "Estimate of Pi = " << (4.0 * inside_circle) / N << '\n';
 
     return 0;
 }
