@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <string>
+#include <chrono>
 
 #include "rtweekend.hpp"
 #include "canvas.hpp"
