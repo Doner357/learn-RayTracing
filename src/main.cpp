@@ -24,22 +24,26 @@
 #include "headers/bvh.hpp"
 #include "headers/texture.hpp"
 
-double f(double d) {
-    return 8.0 * std::pow(d, 1.0 / 3.0);
+double f(const vec3& d) {
+    double cosine_squared = d.z() * d.z();
+    return cosine_squared;
 }
 
-double pdf(double x) {
-    return (3.0 / 8.0) * x * x;
+double pdf(const vec3& d) {
+    return 1 / (4 * kPi);
 }
 
 int main() {
-    int32_t N = 1;
+    int32_t N = 1000000;
     double sum = 0.0;
     for (int32_t i = 0; i < N; ++i) {
-        double x = f(random_double());
-        sum += x * x / pdf(x);
+        vec3 d = random_unit_vector();
+        double f_d = f(d);
+        sum += f_d / pdf(d);
     }
 
     std::cout << std::fixed << std::setprecision(12);
     std::cout << "I = " << sum / N << '\n';
+
+    return 0;
 }
