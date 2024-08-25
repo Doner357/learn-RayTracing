@@ -25,11 +25,11 @@
 #include "headers/texture.hpp"
 
 double f(double d) {
-    return 2.0 * d;
+    return std::sqrt(4.0 * d);
 }
 
 double pdf(double x) {
-    return 0.5;
+    return x / 2.0;
 }
 
 int main() {
