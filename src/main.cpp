@@ -24,49 +24,22 @@
 #include "headers/bvh.hpp"
 #include "headers/texture.hpp"
 
-struct sample {
-    double x;
-    double p_x;
-};
+double f(double d) {
+    return 2.0 * d;
+}
 
-bool compare_by_x(const sample& a, const sample& b) {
-    return a.x < b.x;
+double pdf(double x) {
+    return 0.5;
 }
 
 int main() {
-    uint32_t N = 10000;
+    int32_t N = 1000000;
     double sum = 0.0;
-
-    // Iterate through all of our samples
-    std::vector<sample> samples;
-    for (uint32_t i = 0; i < N; ++i) {
-        // Get the area under the curve
-        double x = random_double(0, 2 * kPi);
-        double sin_x = std::sin(x);
-        double p_x = std::exp(-x / (2 * kPi)) * sin_x * sin_x;
-        sum += p_x;
-        // store this sample
-        sample this_sample =  {x, p_x};
-        samples.push_back(this_sample);
-    }
-
-    // Sort the samples by x
-    std::sort(samples.begin(), samples.end(), compare_by_x);
-
-    // Find out the sample at which we have half of our area
-    double half_sum = sum / 2.0;
-    double halfway_point = 0.0;
-    double accum = 0.0;
-    for (uint32_t i =0; i < N; ++i) {
-        accum += samples[i].p_x;
-        if (accum >= half_sum) {
-            halfway_point = samples[i].x;
-            break;
-        }
+    for (int32_t i = 0; i < N; ++i) {
+        double x = f(random_double());
+        sum += x * x / pdf(x);
     }
 
     std::cout << std::fixed << std::setprecision(12);
-    std::cout << "Average = " << sum / N << '\n';
-    std::cout << "Area under curve = " << 2 * kPi * sum / N << '\n';
-    std::cout << "Halfway = " << halfway_point << '\n';
+    std::cout << "I = " << sum / N << '\n';
 }
