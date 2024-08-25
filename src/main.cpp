@@ -25,15 +25,15 @@
 #include "headers/texture.hpp"
 
 double f(double d) {
-    return std::sqrt(4.0 * d);
+    return 8.0 * std::pow(d, 1.0 / 3.0);
 }
 
 double pdf(double x) {
-    return x / 2.0;
+    return (3.0 / 8.0) * x * x;
 }
 
 int main() {
-    int32_t N = 1000000;
+    int32_t N = 1;
     double sum = 0.0;
     for (int32_t i = 0; i < N; ++i) {
         double x = f(random_double());
