@@ -69,7 +69,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, "cornell_box_pdf_imperfect_match");
+    cam.render(world, "cornell_box_uniform_hemispherical_sampling");
 
     return 0;
 }
