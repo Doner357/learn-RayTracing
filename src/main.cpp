@@ -24,15 +24,31 @@
 #include "headers/bvh.hpp"
 #include "headers/texture.hpp"
 
+
+double f(double r2) {
+    // auto x = cos(2*pi*r1)*2*sqrt(r2*(1-r2));
+    // auto y = sin(2*pi*r1)*2*sqrt(r2*(1-r2));
+    double z = 1 - r2;
+    double cos_theta = z;
+    return cos_theta * cos_theta * cos_theta;
+}
+
+double pdf() {
+    return 1.0 / (2.0 * kPi);
+}
+
 int main() {
-    for (int32_t i = 0; i < 200; ++i) {
-        double r1 = random_double();
+    int32_t N = 1000000;
+
+    double sum = 0.0;
+    for (int32_t i = 0; i < N; i++) {
         double r2 = random_double();
-        double x  = std::cos(2 * kPi * r1) * 2 * std::sqrt(r2 * (1 - r2));
-        double y  = std::sin(2 * kPi * r1) * 2 * std::sqrt(r2 * (1 - r2));
-        double z  = 1 - 2 * r2;
-        std::cout << x << " " << y << " " << z << '\n';
+        sum += f(r2) / pdf();
     }
+
+    std::cout << std::fixed << std::setprecision(12);
+    std::cout << "PI / 2   = " << kPi / 2.0 << '\n';
+    std::cout << "Estimate = " << sum / N   << '\n';
 
     return 0;
 }
