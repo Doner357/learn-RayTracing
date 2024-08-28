@@ -25,16 +25,13 @@
 #include "headers/texture.hpp"
 
 
-double f(double r2) {
-    // auto x = cos(2*pi*r1)*2*sqrt(r2*(1-r2));
-    // auto y = sin(2*pi*r1)*2*sqrt(r2*(1-r2));
-    double z = 1 - r2;
-    double cos_theta = z;
+double f(const vec3& d) {
+    double cos_theta = d.z();
     return cos_theta * cos_theta * cos_theta;
 }
 
-double pdf() {
-    return 1.0 / (2.0 * kPi);
+double pdf(const vec3& d) {
+    return d.z() / kPi;
 }
 
 int main() {
@@ -42,8 +39,8 @@ int main() {
 
     double sum = 0.0;
     for (int32_t i = 0; i < N; i++) {
-        double r2 = random_double();
-        sum += f(r2) / pdf();
+        vec3 d = random_cosine_direction();
+        sum += f(d) / pdf(d);
     }
 
     std::cout << std::fixed << std::setprecision(12);
