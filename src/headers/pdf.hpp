@@ -4,6 +4,7 @@
 
 #include "vec3.hpp"
 #include "constants.hpp"
+#include "hittable_list.hpp"
 #include "onb.hpp"
 
 class pdf {
@@ -13,7 +14,6 @@ class pdf {
         virtual double value(const vec3& direction) const = 0;
         virtual vec3 generate() const = 0;
 };
-
 
 class sphere_pdf : public pdf {
     public:
@@ -44,6 +44,26 @@ class cosine_pdf : public pdf {
 
     private:
         onb uvw;
+};
+
+class hittable_pdf : public pdf {
+    public:
+        hittable_pdf(const hittable& objects, const point3& origin) :
+            objects(objects), origin(origin)
+        {}
+
+        double value(const vec3& direction) const override {
+            return objects.pdf_value(origin, direction);
+        }
+
+        vec3 generate() const override {
+            return objects.random(origin);
+        }
+
+
+    private:
+        const hittable& objects;
+        point3 origin;
 };
 
 #endif // PDF_HPP

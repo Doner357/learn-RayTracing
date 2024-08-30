@@ -55,11 +55,15 @@ int main() {
     box2 = std::make_shared<translate>(box2, vec3(130,0,65));
     world.add(box2);
 
+    // Light Sources
+    auto empty_material = std::shared_ptr<material>();
+    quad lights(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), empty_material);
+
     Camera cam;
 
     cam.aspect_ratio      = 1.0;
     cam.image_width       = 600;
-    cam.samples_per_pixel = 1000;
+    cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
     cam.background        = color(0,0,0);
 
@@ -70,7 +74,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, "cornell_box_with_a_cosine_density_pdf(class)");
+    cam.render(world, lights, "cornell_box_sampling_a_hittable_light_10_samples_per_pixel");
 
     return 0;
 }
