@@ -63,7 +63,7 @@ int main() {
 
     cam.aspect_ratio      = 1.0;
     cam.image_width       = 600;
-    cam.samples_per_pixel = 10;
+    cam.samples_per_pixel = 1000;
     cam.max_depth         = 50;
     cam.background        = color(0,0,0);
 
@@ -74,7 +74,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, lights, "cornell_box_sampling_a_hittable_light_10_samples_per_pixel");
+    cam.render(world, lights, "cornell_box_mixture_density_of_cosine_and_light_sampling");
 
     return 0;
 }
