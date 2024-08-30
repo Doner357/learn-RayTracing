@@ -70,7 +70,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, "cornell_box_sampling_only_the_light_10_samples_per_pixel");
+    cam.render(world, "cornell_box_light_emitted_only_in_the_downward_direction");
 
     return 0;
 }
