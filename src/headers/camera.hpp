@@ -15,6 +15,7 @@
 #include "rtweekend.hpp"
 #include "canvas.hpp"
 #include "hittable.hpp"
+#include "pdf.hpp"
 #include "material.hpp"
 
 class Camera {
@@ -213,14 +214,9 @@ class Camera {
                 return color_from_emission;
             }
 
-            double light_area = (343.0 - 213.0) * (332.0 - 227.0);
-            double light_cosine = std::fabs(to_light.y());
-            if (light_cosine < 0.000001) {
-                return color_from_emission;
-            }
-
-            pdf_value = distance_squared / (light_cosine * light_area);
-            scattered = ray(rec.p, to_light, r.time());
+            cosine_pdf surface_pdf(rec.normal);
+            scattered = ray(rec.p, surface_pdf.generate(), r.time());
+            pdf_value = surface_pdf.value(scattered.direction());
 
             double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
 

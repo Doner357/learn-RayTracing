@@ -27,4 +27,4 @@ class onb {
         vec3 axis[3];
 };
 
-#endif
+#endif // ONB_HPP
