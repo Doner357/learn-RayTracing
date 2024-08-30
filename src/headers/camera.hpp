@@ -204,16 +204,6 @@ class Camera {
                 return color_from_emission;
             }
 
-            // Hardcode light data to check if the strategy is correct
-            point3 on_light = point3(random_double(213, 343), 554, random_double(227, 332));
-            auto to_light   = on_light - rec.p;
-            double distance_squared = to_light.length_squared();
-            to_light = unit_vector(to_light);
-
-            if (dot(to_light, rec.normal) < 0) {
-                return color_from_emission;
-            }
-
             cosine_pdf surface_pdf(rec.normal);
             scattered = ray(rec.p, surface_pdf.generate(), r.time());
             pdf_value = surface_pdf.value(scattered.direction());
