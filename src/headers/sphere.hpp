@@ -73,6 +73,27 @@ class sphere : public hittable {
         }
 
         aabb bounding_box() const override { return bbox; }
+
+        double pdf_value(const point3& origin, const vec3& direction) const override {
+            // This method only works for stationary spheres.
+
+            hit_record rec;
+            if (!this->hit(ray(origin, direction), interval(0.001, kInfinity), rec)) {
+                return 0;
+            }
+
+            double cos_theta_max = std::sqrt(1 - radius * radius / (center1 - origin).length_squared());
+            double solid_angle = 2 * kPi * (1 - cos_theta_max);
+
+            return 1 / solid_angle;
+        }
+
+        vec3 random(const point3& origin) const override {
+            vec3 direction = center1 - origin;
+            double distance_squared = direction.length_squared();
+            onb uvw(direction);
+            return uvw.transform(random_to_sphere(radius, distance_squared));
+        }
     
     private:
         point3 center1;
@@ -101,6 +122,18 @@ class sphere : public hittable {
 
             u = phi / (2 * kPi);
             v = theta / kPi;
+        }
+
+        static vec3 random_to_sphere(double radius, double distance_squared) {
+            double r1 = random_double();
+            double r2 = random_double();
+            double z  = 1 + r2 * (std::sqrt(1 - radius * radius / distance_squared) - 1);
+
+            double phi = 2 * kPi * r1;
+            double x = std::cos(phi) * std::sqrt(1 - z * z);
+            double y = std::sin(phi) * std::sqrt(1 - z * z);
+
+            return vec3(x, y, z);
         }
 };
 

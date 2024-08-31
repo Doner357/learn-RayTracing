@@ -43,18 +43,15 @@ int main() {
     // Light
     world.add(std::make_shared<quad>(point3(213,554,227), vec3(130,0,0), vec3(0,0,105), light));
 
-    // Box 1
-    std::shared_ptr<material> aluminum = std::make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
-    std::shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), aluminum);
-    box1 = std::make_shared<rotate_y>(box1, 15);
-    box1 = std::make_shared<translate>(box1, vec3(265,0,295));
+    // Box
+    std::shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), white);
+    box1 = make_shared<rotate_y>(box1, 15);
+    box1 = make_shared<translate>(box1, vec3(265,0,295));
     world.add(box1);
 
-    // Box 2
-    std::shared_ptr<hittable> box2 = box(point3(0,0,0), point3(165,165,165), white);
-    box2 = std::make_shared<rotate_y>(box2, -18);
-    box2 = std::make_shared<translate>(box2, vec3(130,0,65));
-    world.add(box2);
+    // Glass Sphere
+    auto glass = std::make_shared<dielectric>(1.5);
+    world.add(std::make_shared<sphere>(point3(190,90,190), 90, glass));
 
     // Light Sources
     auto empty_material = std::shared_ptr<material>();
@@ -75,7 +72,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, lights, "cornell_box_with_arbitrary_pdf_functions");
+    cam.render(world, lights, "cornell_box_with_glass_sphere_using_new_pdf_functions");
 
     return 0;
 }
