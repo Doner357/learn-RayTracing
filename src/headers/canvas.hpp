@@ -38,9 +38,18 @@ class Canvas {
                 throw std::out_of_range("ERROR::Canvas::Index out of range: attempting to add more colors than the canvas can hold.");
             }
 
-            double r = linear_to_gamma(c.r());
-            double g = linear_to_gamma(c.g());
-            double b = linear_to_gamma(c.b());
+            double r = c.r();
+            double g = c.g();
+            double b = c.b();
+
+            // Replace NaN components with zero.
+            if (r != r) r = 0.0;
+            if (g != g) g = 0.0;
+            if (b != b) b = 0.0;
+
+            r = linear_to_gamma(c.r());
+            g = linear_to_gamma(c.g());
+            b = linear_to_gamma(c.b());
 
             colors[index++] = color(r, g, b);
             return *this;

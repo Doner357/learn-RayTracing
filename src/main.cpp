@@ -76,7 +76,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, lights, "cornell_box_using_a_mixture_of_glass_&_light_PDFs");
+    cam.render(world, lights, "cornell_box_with_anti-acne_color_function");
 
     return 0;
 }
