@@ -55,7 +55,7 @@ int main() {
 
     // Light Sources
     auto empty_material = std::shared_ptr<material>();
-    quad lights(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), empty_material);
+    sphere glass_sphere(point3(190,90,190), 90, empty_material);
 
     Camera cam;
 
@@ -72,7 +72,7 @@ int main() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world, lights, "cornell_box_with_glass_sphere_using_new_pdf_functions");
+    cam.render(world, glass_sphere, "cornell_box_with_glass_sphere_using_new_pdf_functions");
 
     return 0;
 }
